@@ -1,0 +1,10 @@
+[project]
+name = "gnss-tools"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Curtis Doty", email = "Curtis@GreenKey.net" }
+]
+requires-python = ">=3.13"
+dependencies = []
