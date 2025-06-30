@@ -109,6 +109,7 @@ class HourlyLogWriter:
       self._open_new_file(dt)
       self.current_hour = hour_str
 
+
 # ----------------------------------------------------------------------
 
 def load_logs(logdir: Path) -> pd.DataFrame:
