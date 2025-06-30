@@ -33,6 +33,7 @@ def plot_heatmap(df: pd.DataFrame, plot_dir: Path) -> None:
   # overlay_latest_satellites(df, ax)
   save_figure(fig, plot_dir)
 
+
 # ----------------------------------------------------------------------
 
 def bin_data(
