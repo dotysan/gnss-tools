@@ -5,9 +5,11 @@ and plotting from command-line usage.
 """
 
 # stdlib
-import json
 from pathlib import Path
-import subprocess
+
+# pypi
+import gps
+from gps.client import dictwrapper
 
 # local
 from .logger import (
@@ -41,32 +43,40 @@ class GNSSApp:
     Continuously read gpspipe JSON output, process SKY messages,
     and writes valid GNSS observations into hourly CSV logs.
     """
-    proc = subprocess.Popen(
-      ['gpspipe', '--json'],
-      stdout=subprocess.PIPE,
-      stderr=subprocess.DEVNULL,
-      text=True,
-      bufsize=1
+    session = gps.gps(
+      mode=gps.WATCH_ENABLE | gps.WATCH_JSON,
+      reconnect=True,
+      verbose=1,  # change to 2 to see raw data
     )
-    assert proc.stdout is not None
 
     try:
-      for line in proc.stdout:
+      for msg in session:
 
-        try:
-          msg = json.loads(line)
-          print(f"{msg.get('class')}: {len(msg)} fields, {len(line)} bytes")
-          if msg.get('class') == 'SKY':
+        if isinstance(msg, dictwrapper):
+          msg_class = msg.get('class')
+          print(f"{msg_class}: {len(msg)} fields")
+          if msg_class == 'SKY':
             self.process_sky(msg)
+          elif msg_class == 'VERSION':
+            print(f"GPSD version: {msg.get('release')}")
+          elif msg_class == 'DEVICES':
+            for device in msg.get('devices', []):  # type: ignore
+              print(f"Device: {device.get('path')}, driver: {device.get('driver')}")
+          elif msg_class == 'WATCH':
+            print(f"Watch: {msg}")
 
-        except json.JSONDecodeError:
-          print(f"JSONDecodeError: {line}")
+        else:
+          print(f"Received non-dict message: {msg}")
+          print(session)
           continue
+
+    except KeyboardInterrupt:
+      print("Interrupted by user. Exiting.")
 
     finally:
       self.logger.close()
 
-  def process_sky(self, msg: dict) -> None:
+  def process_sky(self, msg: dictwrapper) -> None:
     """
     Processes a single SKY JSON message and logs healthy, used satellites.
 
@@ -79,7 +89,7 @@ class GNSSApp:
       return
 
     valid_sats = []
-    for sat in msg.get('satellites', []):
+    for sat in msg.get('satellites', []):  # type: ignore
       if sat.get('gnssid') == 1:  # skip SBAS
         continue
       if not sat.get('used'):
