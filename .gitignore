@@ -6,6 +6,9 @@ dist/
 wheels/
 *.egg-info
 
+# coverage sqlite3 database
+tests/.coverage
+
 # Virtual environments
 .venv
 

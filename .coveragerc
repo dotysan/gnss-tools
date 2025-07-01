@@ -1,0 +1,8 @@
+[run]
+data_file = tests/.coverage
+
+[report]
+show_missing = true
+exclude_lines =
+  ^\s*def TODO_overlay_latest_satellites\(
+  ^\s*if __name__ == '__main__':

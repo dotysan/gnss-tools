@@ -1,7 +1,7 @@
 [project]
 name = "gnss-tools"
 version = "0.1.0"
-description = "Add your description here"
+description = "Collect GNSS satellite data & plot heatmap."
 readme = "README.md"
 authors = [
     { name = "Curtis Doty", email = "Curtis@GreenKey.net" }
@@ -15,4 +15,10 @@ dependencies = [
   "matplotlib==3.10.*",
   "numpy==2.3.*",
   "pandas==2.3.*",
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov=skylog --cov=gnss"
+pythonpath = [
+  "."
 ]
