@@ -14,7 +14,10 @@ from pathlib import Path
 import pandas as pd
 
 # local
-from .utils import GNSSID_NAMES
+from .utils import (
+    GNSSID_NAMES,
+    Satellite,
+)
 
 
 class HourlyLogWriter:
@@ -71,7 +74,7 @@ class HourlyLogWriter:
     filename = dt.strftime("%Y-%m-%dT%H.csv")
     return folder / filename
 
-  def write_satellites(self, ts_iso: str, sats: list[dict]) -> None:
+  def write_satellites(self, ts_iso: str, sats: list[Satellite]) -> None:
     """ Write a batch of satellite observations in one go.
 
     Args:
@@ -90,8 +93,8 @@ class HourlyLogWriter:
              sat.get('el'), sat.get('az'), sat.get('ss')]
       # print(row)
       rows.append(row)
-    self.writer.writerows(rows)
-    self.file.flush()
+    self.writer.writerows(rows)  # type: ignore
+    self.file.flush()  # type: ignore
 
   def rotate_if_needed(self, ts_iso: str) -> None:
     """
