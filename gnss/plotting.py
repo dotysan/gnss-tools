@@ -8,8 +8,12 @@ from datetime import (
   timezone,
 )
 from pathlib import Path
+from typing import cast
 
 # pypi
+from matplotlib.axes import Axes
+from matplotlib.projections.polar import PolarAxes
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -120,7 +124,7 @@ def create_mesh(az_edges: np.ndarray, el_edges: np.ndarray) -> tuple[np.ndarray,
   return np.meshgrid(theta_edges, r_edges)
 
 
-def plot_heatmap_grid(grid: np.ndarray, theta_grid: np.ndarray, r_grid: np.ndarray) -> tuple[plt.Figure, plt.Axes]:
+def plot_heatmap_grid(grid: np.ndarray, theta_grid: np.ndarray, r_grid: np.ndarray) -> tuple[Figure, Axes]:
   """ Plot the heatmap grid on polar coordinates.
 
   Args:
@@ -132,21 +136,22 @@ def plot_heatmap_grid(grid: np.ndarray, theta_grid: np.ndarray, r_grid: np.ndarr
     (fig, ax)
   """
   fig, ax = plt.subplots(subplot_kw=dict(projection='polar'), figsize=(8, 8))
-  pcm = ax.pcolormesh(theta_grid, r_grid, grid, cmap='viridis', shading='auto')
+  pax = cast(PolarAxes, ax)
+  pcm = pax.pcolormesh(theta_grid, r_grid, grid, cmap='viridis', shading='auto')
 
-  ax.set_theta_zero_location('N')
-  ax.set_theta_direction(-1)
-  ax.set_ylim(0, 90)
-  ax.set_yticks([0, 30, 60, 90])
-  ax.set_yticklabels(['90°', '60°', '30°', '0°'])
+  pax.set_theta_zero_location('N')
+  pax.set_theta_direction(-1)
+  pax.set_ylim(0, 90)
+  pax.set_yticks([0, 30, 60, 90])
+  pax.set_yticklabels(['90°', '60°', '30°', '0°'])
 
-  plt.colorbar(pcm, ax=ax, label='90th%ile SNR (dB-Hz)')
+  plt.colorbar(pcm, ax=pax, label='90th%ile SNR (dB-Hz)')
   plt.title('Courtney GNSS Receiver Coverage (90th%ile SNR)')
 
-  return fig, ax
+  return fig, pax
 
 
-def save_figure(fig: plt.Figure, plot_dir: Path) -> None:
+def save_figure(fig: Figure, plot_dir: Path) -> None:
   """
   Save the heatmap figure to a timestamped PNG.
 
@@ -162,7 +167,7 @@ def save_figure(fig: plt.Figure, plot_dir: Path) -> None:
   print(f"Saved high-res heatmap to {filename}")
 
 
-def TODO_overlay_latest_satellites(df: pd.DataFrame, ax: plt.Axes) -> None:
+def TODO_overlay_latest_satellites(df: pd.DataFrame, ax: Axes) -> None:
   """
   Overlay last known positions of each satellite.
   """
@@ -173,8 +178,12 @@ def TODO_overlay_latest_satellites(df: pd.DataFrame, ax: plt.Axes) -> None:
   # convert timestamps to datetime
   df_latest['time_dt'] = pd.to_datetime(df_latest['time'])
   # compute age
-  now_utc = datetime.now(timezone.utc)
-  df_latest['age_sec'] = (now_utc - df_latest['time_dt']).dt.total_seconds()
+  now_utc = pd.Timestamp.now(tz='UTC')
+  # df_latest['age_sec'] = (now_utc - df_latest['time_dt']).dt.total_seconds()
+  # above fails Pylance, why? below seems to make it happy
+  df_latest['age_sec'] = df_latest['time_dt'].apply(
+    lambda t: (now_utc - t).total_seconds()
+  )
 
   # mute below 5deg and over an hour old
   df_latest['muted'] = (
