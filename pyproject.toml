@@ -3,6 +3,7 @@ name = "gnss-tools"
 version = "0.1.0"
 description = "Collect GNSS satellite data & plot heatmap."
 readme = "README.md"
+license = {file = "LICENSE"}
 authors = [
     { name = "Curtis Doty", email = "Curtis@GreenKey.net" }
 ]
@@ -15,6 +16,12 @@ dependencies = [
   "matplotlib==3.10.*",
   "numpy==2.3.*",
   "pandas==2.3.*",
+]
+
+[dependency-groups]
+dev = [
+  "pytest-cov==6.2.*",
+  "rust-just==1.41.*",
 ]
 
 [tool.pytest.ini_options]
