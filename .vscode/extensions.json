@@ -3,6 +3,7 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-python.flake8",
-        "tamasfe.even-better-toml"
+        "tamasfe.even-better-toml",
+        "nefrob.vscode-just-syntax",
     ]
 }
