@@ -2,7 +2,7 @@
 
 Collect GNSS satellite data & plot heatmap.
 
-This really only makes sens with a stationary receiver.
+This really only makes sense with a stationary receiver.
 
 ## Usage
 
