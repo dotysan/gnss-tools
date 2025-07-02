@@ -1,5 +1,5 @@
 
-# lists all just recipies
+# lists all just recipes
 @list:
   just --list
 
